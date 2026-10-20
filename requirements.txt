@@ -1,0 +1,12 @@
+fastapi==0.156.2
+uvicorn[standard]==0.54.0
+sqlalchemy==2.1.5
+psycopg[binary]==3.3.6
+alembic==1.20.0
+pydantic-settings==2.16.1
+email-validator==2.3.0
+PyJWT==2.15.1
+bcrypt==5.0.0
+pytest==9.1.1
+# Starlette's TestClient imports this. The older httpx package is not enough.
+httpx2==2.15.1

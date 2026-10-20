@@ -1,0 +1,24 @@
+# Local Postgres only. The password is for this machine, not production.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: whitelight
+      POSTGRES_PASSWORD: whitelight
+      POSTGRES_DB: whitelight
+      TZ: UTC
+    # Store timestamps in UTC. Asia/Bahrain is used later, when we display dates.
+    command: ["postgres", "-c", "timezone=UTC"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/01-init-test-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U whitelight -d whitelight"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
