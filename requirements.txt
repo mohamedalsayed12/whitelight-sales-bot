@@ -1,4 +1,6 @@
 fastapi==0.156.2
+# File uploads need this. FastAPI does not install it on its own.
+python-multipart==0.0.32
 uvicorn[standard]==0.54.0
 sqlalchemy==2.1.5
 psycopg[binary]==3.3.6

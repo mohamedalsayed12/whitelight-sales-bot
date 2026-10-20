@@ -56,3 +56,14 @@ class Token(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     database: str
+
+
+class ImportRowError(BaseModel):
+    row: int
+    message: str
+
+
+class ImportResultOut(BaseModel):
+    imported: int
+    failed: int
+    errors: list[ImportRowError]

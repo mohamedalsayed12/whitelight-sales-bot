@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.database import SessionLocal
-from app.routers import auth, health, users
+from app.routers import auth, health, imports, users
 from app.services.users import ensure_initial_admin
 
 
@@ -22,3 +22,4 @@ app = FastAPI(title="White Light Sales Bot", lifespan=lifespan)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(imports.router)

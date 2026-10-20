@@ -54,6 +54,16 @@ def get_current_user(
     return user
 
 
+def require_manager(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    # The CEO can import as well. Admin is not a lesser manager.
+    if current_user.role not in (UserRole.admin, UserRole.manager):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only a manager or admin can import Tally files",
+        )
+    return current_user
+
+
 def require_admin(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     if current_user.role != UserRole.admin:
         raise HTTPException(

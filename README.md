@@ -2,7 +2,7 @@
 
 Backend for the White Light Trading sales tool. White Light is a B2B wholesale company in Bahrain. Tally Prime stays the source of truth for stock and invoices. This app reads exports from Tally and keeps a record of what the sales team does.
 
-Phase 1 is project setup and accounts. Stock, invoices, orders, quotes, and cheques are not built yet.
+Phase 2 adds Tally imports. Orders, quotes, and cheques are not built yet.
 
 ## What works
 
@@ -12,6 +12,8 @@ Phase 1 is project setup and accounts. Stock, invoices, orders, quotes, and cheq
 - `GET /auth/me` returns the logged-in user.
 - `POST /users` creates an admin, a manager, or a salesman. **Admin only.**
 - On startup, if `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set and that email does not exist, the app creates one admin. If the email already exists, the password and role are left alone. `ADMIN_EMAIL` has to be a normal email address, such as `ceo@example.com`. Names like `.local` are rejected.
+- `POST /imports/stock` reads a stock CSV and sets `stock_on_hand`. A manager or admin can call it.
+- `POST /imports/receivables` reads an outstanding-invoices CSV and creates or updates invoices. A manager or admin can call it.
 
 Roles are `admin` (CEO), `manager` (operations manager), and `salesman`.
 
@@ -64,8 +66,29 @@ GitHub Actions runs the same tests against Postgres 16 on every push and pull re
 | POST | `/auth/login` | anyone | 200 token |
 | GET | `/auth/me` | logged-in user | 200 |
 | POST | `/users` | admin | 201 |
+| POST | `/imports/stock` | manager or admin | 200 |
+| POST | `/imports/receivables` | manager or admin | 200 |
 
 Status codes used here: **401** not logged in, **403** not allowed, **409** email already registered, **422** invalid input. A failed login is always `Incorrect email or password`, whether the email exists or not.
+
+A Tally import with a readable CSV returns **200** even when some rows are bad. The body lists those rows. A file that is not UTF-8, or that is missing a required column, is **422** and nothing is saved.
+
+Stock CSV:
+
+```csv
+sku,name,quantity
+WL-100,Floor lamp,12
+WL-200,Bath towel,40.500
+```
+
+Receivables CSV:
+
+```csv
+client,invoice_number,issue_date,due_date,amount,amount_paid
+Gulf Hotel,INV-1001,2026-09-01,2026-10-01,150.500,50.000
+```
+
+Header names ignore case and spaces, so `Amount Paid` is the same as `amount_paid`. Send the file as form field `file`. Sample files with fake data are in `tests/fixtures/`.
 
 Register:
 
@@ -95,7 +118,10 @@ Admin creates a manager:
 - Login tokens last `JWT_EXPIRE_MINUTES` (8 hours by default). There is no refresh token.
 - Emails are stored in lowercase, so `Ada@Example.com` and `ada@example.com` are the same user.
 - Timestamps are timezone-aware UTC in the database. The business timezone is Asia/Bahrain. This phase only returns `created_at`; it does not convert it for display.
-- Money is not stored yet. Later phases will use `Numeric(12, 3)` because the Bahraini dinar has 3 decimal places. Do not use floats for money.
+- Money and stock quantities are `Numeric(12, 3)`. The Bahraini dinar has 3 decimal places, and Tally quantities can be fractional. Do not use floats.
+- A stock import sets `stock_on_hand` to the quantity in the file. It does not add to the old quantity, and products missing from the file are left as they are. Category, unit, reorder level, and active are not in the export, so a re-import does not wipe them. A new product starts as category blank, unit `pcs`, reorder level 0, and active.
+- An invoice is identified by its number. Importing the same file again updates that invoice. A client is matched by name, ignoring case. A name the app has not seen becomes a client of type `other`, with no price list and a credit limit of 0.
+- Invoice dates are calendar dates (`YYYY-MM-DD`), not UTC timestamps. User `created_at` is still stored in UTC. The business timezone is Asia/Bahrain.
 - The `users.role` column is text with a check constraint, not a Postgres enum, so adding a role later is a normal migration.
 
 ## Layout

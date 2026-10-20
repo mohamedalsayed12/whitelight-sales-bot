@@ -91,8 +91,11 @@ def migrated_database():
 
 @pytest.fixture(autouse=True)
 def clean_database(migrated_database):
-    """Each test starts with an empty users table."""
+    """Each test starts with empty business tables."""
     with engine.begin() as connection:
+        connection.execute(text("DELETE FROM invoices"))
+        connection.execute(text("DELETE FROM clients"))
+        connection.execute(text("DELETE FROM products"))
         connection.execute(text("DELETE FROM users"))
     yield
 
