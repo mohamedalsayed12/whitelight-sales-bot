@@ -93,6 +93,13 @@ def migrated_database():
 def clean_database(migrated_database):
     """Each test starts with empty business tables."""
     with engine.begin() as connection:
+        connection.execute(text("DELETE FROM quote_lines"))
+        connection.execute(text("DELETE FROM quotes"))
+        connection.execute(text("DELETE FROM order_history"))
+        connection.execute(text("DELETE FROM order_lines"))
+        connection.execute(text("DELETE FROM orders"))
+        connection.execute(text("DELETE FROM price_list_items"))
+        connection.execute(text("DELETE FROM cheques"))
         connection.execute(text("DELETE FROM invoices"))
         connection.execute(text("DELETE FROM clients"))
         connection.execute(text("DELETE FROM products"))

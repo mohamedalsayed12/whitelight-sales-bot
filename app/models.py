@@ -136,3 +136,146 @@ class Invoice(Base):
     due_date: Mapped[date] = mapped_column(Date)
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 3))
     amount_paid: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+
+
+class ChequeStatus(str, enum.Enum):
+    received = "received"
+    deposited = "deposited"
+    cleared = "cleared"
+    bounced = "bounced"
+
+
+class Cheque(Base):
+    __tablename__ = "cheques"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('received', 'deposited', 'cleared', 'bounced')",
+            name="ck_cheques_status",
+        ),
+        CheckConstraint("amount >= 0", name="ck_cheques_amount_non_negative"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
+    cheque_number: Mapped[str] = mapped_column(String(64))
+    bank: Mapped[str] = mapped_column(String(100))
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    due_date: Mapped[date] = mapped_column(Date)
+    status: Mapped[ChequeStatus] = mapped_column(_text_enum(ChequeStatus, 20))
+    collected_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    # When the salesman logged the cheque. The daily summary uses this, in Asia/Bahrain.
+    collected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        server_default=func.now(),
+    )
+
+
+class PriceList(Base):
+    __tablename__ = "price_lists"
+    __table_args__ = (UniqueConstraint("name", name="uq_price_lists_name"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[PriceListName] = mapped_column(_text_enum(PriceListName, 20))
+
+
+class PriceListItem(Base):
+    __tablename__ = "price_list_items"
+    __table_args__ = (
+        UniqueConstraint("price_list_id", "product_id", name="uq_price_list_items_product"),
+        CheckConstraint("unit_price > 0", name="ck_price_list_items_price_positive"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    price_list_id: Mapped[int] = mapped_column(ForeignKey("price_lists.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+
+
+class OrderStatus(str, enum.Enum):
+    submitted = "submitted"
+    approved = "approved"
+    out_for_delivery = "out_for_delivery"
+    delivered = "delivered"
+    cancelled = "cancelled"
+
+
+class Order(Base):
+    __tablename__ = "orders"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('submitted', 'approved', 'out_for_delivery', 'delivered', 'cancelled')",
+            name="ck_orders_status",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
+    salesman_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[OrderStatus] = mapped_column(_text_enum(OrderStatus, 20))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        server_default=func.now(),
+    )
+
+
+class OrderLine(Base):
+    __tablename__ = "order_lines"
+    __table_args__ = (
+        UniqueConstraint("order_id", "product_id", name="uq_order_lines_product"),
+        CheckConstraint("quantity > 0", name="ck_order_lines_quantity_positive"),
+        CheckConstraint("unit_price > 0", name="ck_order_lines_price_positive"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    # Copied from the price list when the order is submitted.
+    unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+
+
+class Quote(Base):
+    __tablename__ = "quotes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
+    salesman_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    # The quote can be sent until this calendar date, inclusive.
+    valid_until: Mapped[date] = mapped_column(Date)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        server_default=func.now(),
+    )
+
+
+class QuoteLine(Base):
+    __tablename__ = "quote_lines"
+    __table_args__ = (
+        UniqueConstraint("quote_id", "product_id", name="uq_quote_lines_product"),
+        CheckConstraint("quantity > 0", name="ck_quote_lines_quantity_positive"),
+        CheckConstraint("unit_price > 0", name="ck_quote_lines_price_positive"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    quote_id: Mapped[int] = mapped_column(ForeignKey("quotes.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+    # Copied from the price list when the quote is created.
+    unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 3))
+
+
+class OrderHistory(Base):
+    __tablename__ = "order_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
+    status: Mapped[OrderStatus] = mapped_column(_text_enum(OrderStatus, 20))
+    changed_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        server_default=func.now(),
+    )

@@ -3,7 +3,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.database import SessionLocal
-from app.routers import auth, health, imports, users
+from app.routers import (
+    auth,
+    cheques,
+    clients,
+    health,
+    imports,
+    orders,
+    prices,
+    quotes,
+    reorder,
+    stock,
+    summary,
+    users,
+)
 from app.services.users import ensure_initial_admin
 
 
@@ -23,3 +36,11 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(imports.router)
+app.include_router(stock.router)
+app.include_router(clients.router)
+app.include_router(prices.router)
+app.include_router(orders.router)
+app.include_router(quotes.router)
+app.include_router(cheques.router)
+app.include_router(reorder.router)
+app.include_router(summary.router)
