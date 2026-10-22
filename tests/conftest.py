@@ -48,6 +48,8 @@ os.environ["DATABASE_URL"] = test_database_url
 # Tests create their own users. Do not also create the CEO from .env.
 os.environ["ADMIN_EMAIL"] = ""
 os.environ["ADMIN_PASSWORD"] = ""
+# Tests build their own rows. Do not also load the sample lead desk.
+os.environ["SAMPLE_LEADS"] = "0"
 
 if not os.environ.get("JWT_SECRET"):
     raise RuntimeError("JWT_SECRET is not set. Copy .env.example to .env.")
@@ -93,6 +95,7 @@ def migrated_database():
 def clean_database(migrated_database):
     """Each test starts with empty business tables."""
     with engine.begin() as connection:
+        connection.execute(text("DELETE FROM leads"))
         connection.execute(text("DELETE FROM quote_lines"))
         connection.execute(text("DELETE FROM quotes"))
         connection.execute(text("DELETE FROM order_history"))

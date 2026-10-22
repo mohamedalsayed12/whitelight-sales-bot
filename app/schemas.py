@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
-from app.models import ChequeStatus, OrderStatus, PriceListName, UserRole
+from app.models import ChequeStatus, LeadSource, LeadStatus, OrderStatus, PriceListName, UserRole
 from app.services.accounts import AccountStatus
 from app.services.passwords import validate_password
 
@@ -309,3 +309,86 @@ class DailySummaryOut(BaseModel):
     cheques_collected: Decimal
     total_overdue: Decimal
     reorder: list[ReorderItemOut]
+
+
+class LeadReasonOut(BaseModel):
+    points: int
+    text: str
+
+
+class LeadOut(BaseModel):
+    id: int
+    name: str
+    category: str
+    area: str
+    summary: str
+    score: int
+    status: LeadStatus
+    source: LeadSource
+    phone: str
+    contact_by: date | None
+    quote_sent_on: date | None
+    suggested_salesman_id: int | None
+    suggested_name: str
+    reasons: list[LeadReasonOut]
+    message: str
+
+
+class MyLeadsOut(BaseModel):
+    salesman_name: str
+    to_contact: int
+    sample_data: bool
+    leads: list[LeadOut]
+
+
+class LeadStatusChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: LeadStatus
+
+
+class LeadAssign(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    salesman_id: int
+
+
+class SalesmanStatOut(BaseModel):
+    id: int
+    name: str
+    assigned: int
+    contacted: int
+    quotes: int
+    won: int
+    late: int
+
+
+class SourceStatOut(BaseModel):
+    key: str
+    label: str
+    enabled: bool
+    leads: int | None
+    quotes: int | None
+    won: int | None
+
+
+class SalesmanOption(BaseModel):
+    id: int
+    name: str
+
+
+class LeadOverviewOut(BaseModel):
+    sample_data: bool
+    week_start: date
+    week_end: date
+    new_leads: int
+    contacted: int
+    quotes: int
+    won: int
+    contacted_pct: int | None
+    quotes_pct: int | None
+    won_pct: int | None
+    by_salesman: list[SalesmanStatOut]
+    sources: list[SourceStatOut]
+    unassigned: list[LeadOut]
+    salesmen: list[SalesmanOption]

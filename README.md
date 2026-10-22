@@ -2,7 +2,7 @@
 
 Backend for the White Light Trading sales tool. White Light is a B2B wholesale company in Bahrain. Tally Prime stays the source of truth for stock and invoices. This app reads exports from Tally and keeps a record of what the sales team does.
 
-Phase 6 adds cheque collection, the reorder list, and the CEO's daily summary.
+The lead desk is at [http://127.0.0.1:8000/](http://127.0.0.1:8000/). A salesman sees his leads and a WhatsApp message. A manager or the CEO sees the week, assigns new leads, and can export a CSV. Sample businesses load once so the screens are not empty. They are fictional. The app does not search the web for leads.
 
 ## What works
 
@@ -43,7 +43,9 @@ docker compose up -d
 .venv\Scripts\python -m uvicorn app.main:app --reload
 ```
 
-Then open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+Then open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) for the lead screens. The API docs stay at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+Sample salesman: `ahmed@example.com` / `password123`. The CEO signs in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env` and sees the weekly overview. Yusuf and Ravi use the same sample password.
 
 1. Call `POST /auth/login` with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `.env`.
 2. Click **Authorize** and paste the `access_token` only, without the word `Bearer`.

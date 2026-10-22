@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     admin_email: str = ""
     admin_password: str = ""
     admin_full_name: str = "Admin"
+    # Loads fictional leads once, so the lead screens are not empty.
+    sample_leads: bool = True
 
 
 settings = Settings()

@@ -2,7 +2,18 @@ import enum
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, ForeignKey, Numeric, String, UniqueConstraint
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -275,6 +286,60 @@ class OrderHistory(Base):
     status: Mapped[OrderStatus] = mapped_column(_text_enum(OrderStatus, 20))
     changed_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utcnow,
+        server_default=func.now(),
+    )
+
+
+class LeadStatus(str, enum.Enum):
+    new = "new"
+    contacted = "contacted"
+    quote_sent = "quote_sent"
+    won = "won"
+
+
+class LeadSource(str, enum.Enum):
+    tender = "tender"
+    exhibition = "exhibition"
+    hand = "hand"
+    referral = "referral"
+
+
+class Lead(Base):
+    """A business a salesman might call. Sample rows are fictional."""
+
+    __tablename__ = "leads"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('new', 'contacted', 'quote_sent', 'won')",
+            name="ck_leads_status",
+        ),
+        CheckConstraint(
+            "source IN ('tender', 'exhibition', 'hand', 'referral')",
+            name="ck_leads_source",
+        ),
+        CheckConstraint("score >= 0 AND score <= 100", name="ck_leads_score"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    category: Mapped[str] = mapped_column(String(50))
+    area: Mapped[str] = mapped_column(String(80))
+    summary: Mapped[str] = mapped_column(String(255))
+    score: Mapped[int] = mapped_column(Integer)
+    # JSON list of {points, text}. Shown on the lead, not recalculated.
+    reasons: Mapped[str] = mapped_column(Text, default="[]")
+    status: Mapped[LeadStatus] = mapped_column(_text_enum(LeadStatus, 20))
+    source: Mapped[LeadSource] = mapped_column(_text_enum(LeadSource, 20))
+    phone: Mapped[str] = mapped_column(String(30), default="")
+    pitch_hook: Mapped[str] = mapped_column(String(255), default="")
+    contact_by: Mapped[date | None] = mapped_column(Date)
+    quote_sent_on: Mapped[date | None] = mapped_column(Date)
+    assigned_salesman_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    suggested_salesman_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
+    is_sample: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=utcnow,
         server_default=func.now(),
