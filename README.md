@@ -2,7 +2,7 @@
 
 Backend for the White Light Trading sales tool. White Light is a B2B wholesale company in Bahrain. Tally Prime stays the source of truth for stock and invoices. This app reads exports from Tally and keeps a record of what the sales team does.
 
-The lead desk is at [http://127.0.0.1:8000/](http://127.0.0.1:8000/). A salesman sees his leads and a WhatsApp message. A manager or the CEO sees the week, assigns new leads, and can export a CSV. Sample businesses load once so the screens are not empty. They are fictional. The app does not search the web for leads.
+The lead desk is at [http://127.0.0.1:8000/](http://127.0.0.1:8000/). A salesman sees his leads and a WhatsApp message. A manager or the CEO sees the week, assigns new leads, and can export a CSV. Sample businesses load once so the screens are not empty. They are fictional. The app does not search the web for leads. A sample-data demo of the screens runs at [mohamedalsayed12.github.io/whitelight-lead-bot-demo](https://mohamedalsayed12.github.io/whitelight-lead-bot-demo/).
 
 ## What works
 
