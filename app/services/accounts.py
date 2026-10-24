@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 
 from app.models import Cheque, ChequeStatus, Client, Invoice, User, UserRole
 
-# Aging uses the business date, not the UTC date.
 BAHRAIN = ZoneInfo("Asia/Bahrain")
 PLACES = Decimal("0.001")
 ZERO = Decimal("0.000")

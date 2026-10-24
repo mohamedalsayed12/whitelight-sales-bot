@@ -22,7 +22,6 @@ from app.models import (
 from app.services.accounts import ClientNotAllowed, ClientNotFound, on_hold_warning
 from app.services.stock import available_quantity
 
-# A manager moves an order one step at a time. Delivered and cancelled stay there.
 NEXT_STATUS = {
     OrderStatus.submitted: {OrderStatus.approved, OrderStatus.cancelled},
     OrderStatus.approved: {OrderStatus.out_for_delivery, OrderStatus.cancelled},
@@ -201,7 +200,6 @@ def _ensure_reservation_still_fits(db: Session, rows: list[tuple[OrderLine, Prod
     """Approval fails when a newer stock import no longer covers this order."""
     problems: list[str] = []
     for line, product in rows:
-        # available already subtracts this order, so add the line back.
         free = available_quantity(db, product) + line.quantity
         if line.quantity > free:
             problems.append(

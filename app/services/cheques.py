@@ -9,7 +9,6 @@ from app.models import Cheque, ChequeStatus, Client, User, UserRole, utcnow
 from app.services import accounts
 from app.services.accounts import PENDING, ClientNotAllowed, ClientNotFound
 
-# A cheque moves with the bank. Cleared and bounced stay there.
 NEXT_STATUS = {
     ChequeStatus.received: {ChequeStatus.deposited, ChequeStatus.bounced},
     ChequeStatus.deposited: {ChequeStatus.cleared, ChequeStatus.bounced},

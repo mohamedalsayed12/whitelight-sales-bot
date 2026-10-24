@@ -45,7 +45,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(255))
     hashed_password: Mapped[str] = mapped_column(String(255))
-    # Text, not a Postgres enum, so adding a role later is a normal migration.
     role: Mapped[UserRole] = mapped_column(
         SAEnum(
             UserRole,
@@ -62,7 +61,6 @@ class User(Base):
 
 
 def _text_enum(enum_cls: type[enum.Enum], length: int) -> SAEnum:
-    # Text, not a Postgres enum, so adding a value later is a normal migration.
     return SAEnum(
         enum_cls,
         native_enum=False,
@@ -95,7 +93,6 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(255))
     category: Mapped[str] = mapped_column(String(100), default="")
     unit: Mapped[str] = mapped_column(String(32), default="pcs")
-    # Tally quantities can be fractional. Numeric avoids float rounding.
     stock_on_hand: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=Decimal("0"))
     reorder_level: Mapped[Decimal] = mapped_column(Numeric(12, 3), default=Decimal("0"))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -119,7 +116,6 @@ class Client(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
     type: Mapped[ClientType] = mapped_column(_text_enum(ClientType, 20), default=ClientType.other)
-    # Empty until a manager assigns hotel or restaurant prices.
     price_list: Mapped[PriceListName | None] = mapped_column(
         _text_enum(PriceListName, 20),
         nullable=True,
@@ -142,7 +138,6 @@ class Invoice(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     number: Mapped[str] = mapped_column(String(64))
-    # A calendar date has no time, so this is not a UTC timestamp.
     issue_date: Mapped[date] = mapped_column(Date)
     due_date: Mapped[date] = mapped_column(Date)
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 3))
@@ -174,7 +169,6 @@ class Cheque(Base):
     due_date: Mapped[date] = mapped_column(Date)
     status: Mapped[ChequeStatus] = mapped_column(_text_enum(ChequeStatus, 20))
     collected_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
-    # When the salesman logged the cheque. The daily summary uses this, in Asia/Bahrain.
     collected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=utcnow,
@@ -243,7 +237,6 @@ class OrderLine(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3))
-    # Copied from the price list when the order is submitted.
     unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 3))
 
 
@@ -253,7 +246,6 @@ class Quote(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     salesman_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    # The quote can be sent until this calendar date, inclusive.
     valid_until: Mapped[date] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -274,7 +266,6 @@ class QuoteLine(Base):
     quote_id: Mapped[int] = mapped_column(ForeignKey("quotes.id"))
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3))
-    # Copied from the price list when the quote is created.
     unit_price: Mapped[Decimal] = mapped_column(Numeric(12, 3))
 
 
@@ -328,7 +319,6 @@ class Lead(Base):
     area: Mapped[str] = mapped_column(String(80))
     summary: Mapped[str] = mapped_column(String(255))
     score: Mapped[int] = mapped_column(Integer)
-    # JSON list of {points, text}. Shown on the lead, not recalculated.
     reasons: Mapped[str] = mapped_column(Text, default="[]")
     status: Mapped[LeadStatus] = mapped_column(_text_enum(LeadStatus, 20))
     source: Mapped[LeadSource] = mapped_column(_text_enum(LeadSource, 20))

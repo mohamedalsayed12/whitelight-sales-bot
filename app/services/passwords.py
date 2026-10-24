@@ -1,7 +1,5 @@
 import bcrypt
 
-# bcrypt only uses the first 72 bytes. Current versions raise past that,
-# so we reject the password instead of saving a truncated one.
 BCRYPT_MAX_BYTES = 72
 
 

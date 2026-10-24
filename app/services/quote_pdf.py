@@ -51,7 +51,6 @@ def _stream(rows: list[str]) -> bytes:
 
 
 def _escape(text: str) -> str:
-    # Helvetica uses Latin-1. Anything else becomes a question mark.
     safe = text.encode("latin-1", errors="replace").decode("latin-1")
     return safe.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 

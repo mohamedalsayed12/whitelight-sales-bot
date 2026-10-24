@@ -14,7 +14,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(body: UserCreate, db: Annotated[Session, Depends(get_db)]) -> User:
-    # Public registration is always a salesman. An admin creates other roles.
     try:
         return create_user(
             db,
@@ -34,7 +33,6 @@ def register(body: UserCreate, db: Annotated[Session, Depends(get_db)]) -> User:
 def login(body: LoginRequest, db: Annotated[Session, Depends(get_db)]) -> Token:
     user = authenticate(db, email=body.email, password=body.password)
     if user is None:
-        # Same message either way, so a caller cannot learn which emails exist.
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

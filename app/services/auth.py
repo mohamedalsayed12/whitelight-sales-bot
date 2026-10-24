@@ -12,10 +12,8 @@ from app.models import User, UserRole
 from app.services.passwords import verify_password
 from app.services.users import get_user_by_email
 
-# "algorithms" is a list so a token cannot choose "none" and skip the signature.
 JWT_ALGORITHM = "HS256"
 
-# auto_error=False lets us return 401. The default for a missing token is 403.
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
@@ -55,7 +53,6 @@ def get_current_user(
 
 
 def require_manager(current_user: Annotated[User, Depends(get_current_user)]) -> User:
-    # The CEO can import as well. Admin is not a lesser manager.
     if current_user.role not in (UserRole.admin, UserRole.manager):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

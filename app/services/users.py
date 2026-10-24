@@ -7,7 +7,6 @@ from app.config import settings
 from app.models import User, UserRole
 from app.services.passwords import hash_password
 
-# Same rule as the login schema, so the CEO can actually sign in.
 _email_check = TypeAdapter(EmailStr)
 
 
@@ -77,7 +76,6 @@ def ensure_initial_admin(db: Session) -> None:
             role=UserRole.admin,
         )
     except EmailAlreadyRegistered:
-        # Another process created this user between the check and the insert.
         return
     except ValueError as exc:
         raise RuntimeError(f"Could not create the initial admin: {exc}") from exc

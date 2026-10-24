@@ -80,7 +80,6 @@ class StockItem(BaseModel):
 
 
 class OverdueOut(BaseModel):
-    # JSON keys match the aging buckets: 0-30, 31-60, 61-90, and more than 90.
     days_0_30: Decimal = Field(serialization_alias="0_30")
     days_31_60: Decimal = Field(serialization_alias="31_60")
     days_61_90: Decimal = Field(serialization_alias="61_90")

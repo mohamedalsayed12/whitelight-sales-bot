@@ -30,7 +30,6 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # FastAPI asks for an async lifespan. The database code itself stays synchronous.
     db = SessionLocal()
     try:
         ensure_initial_admin(db)

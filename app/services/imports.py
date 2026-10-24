@@ -97,7 +97,6 @@ def import_receivables(db: Session, content: bytes) -> ImportResult:
 
 def _read_rows(content: bytes, required: set[str]) -> tuple[list[tuple[int, dict[str, str]]], list[RowError]]:
     try:
-        # utf-8-sig drops the byte-order mark Excel sometimes adds.
         text = content.decode("utf-8-sig")
     except UnicodeDecodeError as exc:
         raise InvalidImportFile("The file must be a UTF-8 CSV.") from exc
@@ -108,7 +107,6 @@ def _read_rows(content: bytes, required: set[str]) -> tuple[list[tuple[int, dict
     if not reader.fieldnames:
         raise InvalidImportFile("The CSV needs a header row.")
 
-    # "Amount Paid" and "amount_paid" are the same column.
     headers = {_header(name) for name in reader.fieldnames}
     missing = sorted(required - headers)
     if missing:
@@ -175,7 +173,6 @@ def _parse_invoice_row(
 def _parse_decimal(value: str, field_name: str) -> Decimal:
     if value == "":
         raise ValueError(f"{field_name} is required")
-    # Tally sometimes writes thousands as 1,250.500.
     try:
         number = Decimal(value.replace(",", ""))
     except InvalidOperation:
@@ -212,7 +209,6 @@ def _upsert_product(db: Session, sku: str, name: str, quantity: Decimal) -> None
             )
         )
         return
-    # Keep category, unit, reorder level, and active. Those are not in the export.
     product.name = name
     product.stock_on_hand = quantity
 

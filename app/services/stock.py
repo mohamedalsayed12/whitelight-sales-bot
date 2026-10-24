@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 
 from app.models import Order, OrderLine, OrderStatus, Product
 
-# These orders still need the goods, so they reduce what a salesman can sell.
 OPEN_ORDER_STATUSES = (
     OrderStatus.submitted,
     OrderStatus.approved,
@@ -53,7 +52,6 @@ def search_stock(db: Session, term: str) -> list[StockMatch]:
     cleaned = term.strip()
     if cleaned == "":
         raise SearchTermRequired
-    # Treat % and _ as ordinary characters, not "match anything".
     escaped = cleaned.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     pattern = f"%{escaped}%"
     products = db.scalars(

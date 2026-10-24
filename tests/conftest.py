@@ -43,12 +43,9 @@ if test_database_name is None or not test_database_name.endswith("_test"):
         f"Refusing to run tests against {safe_url}. The database name must end with _test."
     )
 
-# Do this before importing the app. Settings reads DATABASE_URL at import time.
 os.environ["DATABASE_URL"] = test_database_url
-# Tests create their own users. Do not also create the CEO from .env.
 os.environ["ADMIN_EMAIL"] = ""
 os.environ["ADMIN_PASSWORD"] = ""
-# Tests build their own rows. Do not also load the sample lead desk.
 os.environ["SAMPLE_LEADS"] = "0"
 
 if not os.environ.get("JWT_SECRET"):

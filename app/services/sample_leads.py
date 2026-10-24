@@ -16,7 +16,6 @@ from app.services.users import EmailAlreadyRegistered, create_user, get_user_by_
 
 SAMPLE_PASSWORD = "password123"
 
-# Ahmed's visible list, then the four waiting to be assigned.
 NAMED = [
     {
         "name": "Juffair Grand Suites",
@@ -126,8 +125,6 @@ WAITING = [
     },
 ]
 
-# This week's assigned leads, including the five named ones above.
-# won, quote_sent, contacted, new. Late is how many of the new ones are overdue.
 QUOTAS = {
     "Ahmed": {"won": 2, "quote_sent": 2, "contacted": 8, "new": 4, "late": 1},
     "Yusuf": {"won": 1, "quote_sent": 2, "contacted": 6, "new": 5, "late": 3},

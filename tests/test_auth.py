@@ -37,7 +37,6 @@ def test_register_rejects_a_short_password(client):
 
 
 def test_register_rejects_a_password_over_72_bytes(client):
-    # "é" is 2 bytes, so this is 80 bytes but only 40 characters.
     response = client.post(
         "/auth/register",
         json={**SALESMAN, "password": "é" * 40},

@@ -1,4 +1,3 @@
-# Local Postgres only. The password is for this machine, not production.
 services:
   db:
     image: postgres:16
@@ -7,7 +6,6 @@ services:
       POSTGRES_PASSWORD: whitelight
       POSTGRES_DB: whitelight
       TZ: UTC
-    # Store timestamps in UTC. Asia/Bahrain is used later, when we display dates.
     command: ["postgres", "-c", "timezone=UTC"]
     ports:
       - "5432:5432"
