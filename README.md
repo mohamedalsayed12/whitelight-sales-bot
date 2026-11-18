@@ -1,3 +1,11 @@
+> **Portfolio overview** — A backend workflow tool for a Bahrain-based wholesale trading business, designed around the gap between accounting exports and a salesperson's daily work. Tally Prime remains the source of truth for stock and invoices; the application handles sales-side workflows.
+>
+> **Business workflow:** import inventory and receivables, manage assigned customer accounts, prepare quotes and orders, record cheques, and surface reorder and overdue-account information for managers.
+>
+> **Engineering decisions:** FastAPI and PostgreSQL, role-specific access, CSV integrations, auditable order status transitions, PDF quotes and fictional sample data. [View the sample-data demo](https://mohamedalsayed12.github.io/whitelight-lead-bot-demo/).
+
+---
+
 # White Light Sales Bot
 
 Backend for the White Light Trading sales tool. White Light is a B2B wholesale company in Bahrain. Tally Prime stays the source of truth for stock and invoices. This app reads exports from Tally and keeps a record of what the sales team does.
